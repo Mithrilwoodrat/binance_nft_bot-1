@@ -1,10 +1,11 @@
 from box import BaseBox, Box
 from handlers import headers_is_right, send_requests_to_buy
-
+from settings import PROXY
 
 headers_is_right()
 
 box_info = BaseBox()
+box_info.set_proxy(PROXY)
 avalible_boxes = box_info.get_avalible_boxes()
 box_info.log_info_boxes(avalible_boxes)
 
@@ -13,6 +14,7 @@ amount_boxes = int(input(f'\nAmount boxes (Max: {avalible_boxes[selected_box]["l
 
 product_id = avalible_boxes[selected_box]['product_id']
 box = Box(product_id=product_id, amount=amount_boxes)
+box.set_proxy(PROXY)
 start_sale_time = box._get_start_sale_time
 
 print('Waiting for start')

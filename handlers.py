@@ -15,7 +15,7 @@ def event_is_not_over(status: int) -> bool:
 
 def headers_is_right() -> bool:
     user_info = 'https://www.binance.com/bapi/accounts/v1/private/account/user/base-detail'
-    response = requests.post(user_info, headers=headers)
+    response = requests.post(user_info, headers=headers, proxies={'http': f'http://{PROXY}/', 'https': f'http://{PROXY}/'})
 
     if response.status_code == 200:
         print('Successfully connected\n')

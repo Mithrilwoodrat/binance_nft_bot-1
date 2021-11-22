@@ -17,8 +17,15 @@ class BaseBox:
         self._box_info: str = 'https://www.binance.com/bapi/nft/v1/friendly/nft/mystery-box/detail?productId='
         self._box_list = 'https://www.binance.com/bapi/nft/v1/public/nft/mystery-box/list?page=1&size=15'
     
+    def set_proxy(self, proxy:str):
+        if proxy!="":
+            self.proxies={'http': f'http://{proxy}/', 'https': f'http://{proxy}/'}
+        else:
+            self.proxies={}
+    
     def get_list_boxes(self) -> dict:
-        return requests.get(self._box_list).json()['data']
+        print("get list boxes")
+        return requests.get(self._box_list, proxies=self.proxies).json()['data']
 
     def get_avalible_boxes(self) -> dict:
         avalible_boxes = defaultdict(dict)
@@ -27,7 +34,7 @@ class BaseBox:
 
         for box in boxes:
             product_id = box['productId']
-            response = requests.get(self._box_info + product_id, headers=headers).json()['data']
+            response = requests.get(self._box_info + product_id, headers=headers, proxies=self.proxies).json()['data']
             status = box['status']
             name = box['name']
             selling_delay = response['secondMarketSellingDelay']
@@ -72,7 +79,7 @@ class Box(BaseBox):
     @property
     @abstractmethod
     def _get_box_info(self) -> dict():
-        return requests.get(self._box_info + str(self._product_id)).json()['data']
+        return requests.get(self._box_info + str(self._product_id), proxies=self.proxies).json()['data']
 
     @property
     @abstractmethod
@@ -82,14 +89,14 @@ class Box(BaseBox):
         return start_sale_time
 
     @abstractmethod
-    def _buy_box(self, proxy: str, captcha: str) -> json:
+    def _buy_box(self, proxy:str, captcha: str) -> json:
         # resolve invisible recaptcha V3
         self._headers['x-nft-checkbot-token'] = captcha
 
         response = requests.post(
             self._box_buy, headers=self._headers,
             data=json.dumps(self._body),
-            proxies={'http': f'http://{proxy}/'}
+            proxies=self.proxies
         )
         print(response.json())
         return response
